@@ -4,9 +4,9 @@ import furhatos.nlu.common.*
 import furhatos.flow.kotlin.*
 import furhatos.app.taxibot.nlu.*
 import furhatos.nlu.wikidata.City
+import furhatos.app.taxibot.APP_ID
 
 val BASE_URL = "https://maps.googleapis.com/maps/api/directions/json"
-val APP_ID = ""
 
 val Start : State = state(Interaction) {
     onEntry {

@@ -1,10 +1,10 @@
-package furhatos.app.fruitseller
+package furhatos.app.taxibot
 
-import furhatos.app.fruitseller.flow.Idle
+import furhatos.app.taxibot.flow.*
 import furhatos.skills.Skill
 import furhatos.flow.kotlin.*
 
-class FruitsellerSkill : Skill() {
+class TaxiBotSkill : Skill() {
     override fun start() {
         Flow().run(Idle)
     }

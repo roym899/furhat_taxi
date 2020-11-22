@@ -6,18 +6,38 @@ import furhatos.nlu.common.Number
 import furhatos.nlu.wikidata.City
 import furhatos.util.Language
 
+// Wildcard-based: has problems because of greedy matching
+// i.e., I want to go from Munich Library to KTH Stockholm becomes
+//       departure: null
+//       destination: go from Munih Library to KTH Stockholm (because of "to" right before)
+//class DepartureEntity: WildcardEntity("departure", TravelRequest())
+//class DestinationEntity: WildcardEntity("destination", TravelRequest())
+//
+//class TravelRequest (
+//    val departure: DepartureEntity? = null,
+//    val destination: DestinationEntity? = null
+//    ) :Intent(){
+//
+//    override fun getExamples(lang: Language): List<String> {
+//        return listOf("I want to go from @departure to @destination",
+//                "from @departure to @destination",
+//                "to @destination",
+//                "@destination")
+//    }
+//}
 
-class confirmlocation (
-    val departure: City?= null,
-    val destination: City? = null
-    ) :Intent(){
+class TravelRequest (
+        var departure: City? = null,
+        val destination: City? = null
+    ) :Intent() {
 
     override fun getExamples(lang: Language): List<String> {
         return listOf("I want to go from @departure to @destination",
-                "I want to go to @destination",
+                "I want to go to @destination.",
+                "from @departure to @destination",
+                "to @destination",
                 "@destination")
     }
-
 }
 
 class data(

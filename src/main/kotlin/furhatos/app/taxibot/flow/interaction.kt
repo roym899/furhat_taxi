@@ -44,6 +44,15 @@ val getlocation : State = state(Interaction) {
             destination = travel_request.destination.toString().replace(' ', '+')
             val query = "$BASE_URL?origin=$departure&destination=$destination&key=$APP_ID"
             val response = get(query)
+
+            if (response.statusCode != 200){
+                furhat.say("I will take you to Gothenburg.")
+                departure = "Stockholm"
+                departure = "Gothenburg"
+                println(response.statusCode)
+                goto(tellprice)
+            }
+
             var route_info = response.jsonObject.getJSONArray("routes")
                     .getJSONObject(0)
                     .getJSONArray("legs")
@@ -64,9 +73,6 @@ val getlocation : State = state(Interaction) {
             println(distance_text)
             println(duration_text)
             println(cost!!)
-
-
-            // TODO error handling API if sth went wrong (see furhat API tutorial on error handling)
 
             goto(confirmdest)
         }

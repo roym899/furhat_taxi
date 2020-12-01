@@ -36,7 +36,7 @@ val getlocation : State = state(Interaction) {
         else {
             // make sure both departure and destination are defined
             if (travel_request.departure == null) {
-                travel_request.departure = DepartureEntity("Stockholm")
+                travel_request.departure = City(name="Stockholm")
             }
 
             // generate query

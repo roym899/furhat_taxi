@@ -11,34 +11,32 @@ import furhatos.util.Language
 //       departure: null
 //       destination: go from Munih Library to KTH Stockholm (because of "to" right before)
 //class DepartureEntity: WildcardEntity("departure", TravelRequest())
-//class DestinationEntity: WildcardEntity("destination", TravelRequest())
-//
+class RequestEntity: WildcardEntity("request", TravelRequest())
+
+class TravelRequest (
+    val request: RequestEntity? = null
+    ) :Intent(){
+
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("I want to go @request",
+                "I would like to go @request",
+                "@request")
+    }
+}
+
 //class TravelRequest (
-//    val departure: DepartureEntity? = null,
-//    val destination: DestinationEntity? = null
-//    ) :Intent(){
+//        var departure: City? = null,
+//        val destination: City? = null
+//    ) :Intent() {
 //
 //    override fun getExamples(lang: Language): List<String> {
 //        return listOf("I want to go from @departure to @destination",
+//                "I want to go to @destination.",
 //                "from @departure to @destination",
 //                "to @destination",
 //                "@destination")
 //    }
 //}
-
-class TravelRequest (
-        var departure: City? = null,
-        val destination: City? = null
-    ) :Intent() {
-
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I want to go from @departure to @destination",
-                "I want to go to @destination.",
-                "from @departure to @destination",
-                "to @destination",
-                "@destination")
-    }
-}
 
 class data(
         val distance: Nothing? = null,

@@ -24,6 +24,18 @@ class TravelRequest (
     }
 }
 
+class Price (
+    val customer_bid: Number? = null
+    ) :Intent(){
+
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("@customer_bid",
+                "My lowest is @customer_bid",
+                "I can pay @customer_bid")
+    }
+}
+
+
 //class TravelRequest (
 //        var departure: City? = null,
 //        val destination: City? = null

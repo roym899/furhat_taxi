@@ -8,12 +8,13 @@ import furhatos.app.taxibot.APP_ID
 import furhatos.nlu.Intent
 import khttp.get
 import kotlin.math.roundToInt
-
+import kotlin.random.Random
 
 val BASE_URL = "https://maps.googleapis.com/maps/api/directions/json"
 var distance: Int? = null
 var duration: Int? = null
 var cost: Int=0
+var accepting_price: Int=0
 var departure: String?= null
 var destination: String?= null
 
@@ -80,14 +81,14 @@ val getlocation : State = state(Interaction) {
         val duration_text = route_info.getJSONObject("duration").getString("text")
         val start_address_text = route_info.getString("start_address")
         val end_address_text = route_info.getString("end_address")
-        cost= distance!! /1000!! * 12 + duration!! /3600!! *20
-
+        cost= distance!!/1000 *12 + duration!!/3600 *20
+        accepting_price = (0.6 * cost).roundToInt()
 
         println(start_address_text)
         println(end_address_text)
         println(distance_text)
         println(duration_text)
-        println(cost!!)
+        println(cost)
 
         goto(confirmdest)
     }
@@ -122,7 +123,7 @@ val tellprice : State = state(Interaction) {
     }
 
     onResponse<Yes> {
-        furhat.say("That's great. Let's go.")
+        furhat.say("That's great, I'm glad you didn't try to bargain. Let's go.")
     }
 
     onResponse<No>{
@@ -131,10 +132,12 @@ val tellprice : State = state(Interaction) {
 }
 
 val bargain : State = state(Interaction) {
-    var new_cost= (cost - 0.1 * cost).roundToInt()
-
     onEntry {
-        furhat.ask("How about $new_cost kronor?")
+        cost= (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
+        furhat.ask("How about $cost kronor?")
+    }
+    onReentry {
+        furhat.ask("How about $cost kronor?")
     }
 
     onResponse<Yes> {
@@ -142,8 +145,40 @@ val bargain : State = state(Interaction) {
     }
 
     onResponse<No>{
-        furhat.say("I'm sorry, but I cannot bargain more. Thank you and have a great day!")
+        if (Random.nextFloat() <= 0.5) {
+            cost= (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
+            reentry()
+        } else {
+            goto(last_bargain)
+        }
     }
 }
 
 
+val last_bargain : State = state(Interaction) {
+    onEntry {
+        furhat.ask("What is the lowest you are willing to pay?")
+    }
+    onResponse<Price> {
+        var customer_bid = it.intent.customer_bid.toString().toInt()
+        println(customer_bid)
+        println(accepting_price)
+        if (customer_bid >= accepting_price) {
+            furhat.ask("$customer_bid. Is that ok?")
+        } else {
+            if (Random.nextFloat() <= 0.5) {
+                furhat.say("$customer_bid? No. ")
+                goto(bargain)
+            } else {
+                furhat.say("$customer_bid? Sorry, I can't accept that. Maybe we can go somewhere else.")
+                goto(getlocation)
+            }
+        }
+    }
+    onResponse<Yes> {
+        furhat.say("Sure. Let's go.")
+    }
+    onResponse<No>{
+            reentry()
+    }
+}

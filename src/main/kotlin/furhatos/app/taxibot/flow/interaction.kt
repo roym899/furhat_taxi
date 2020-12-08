@@ -28,7 +28,7 @@ val Start : State = state(Interaction) {
 val getlocation : State = state(Interaction) {
 
     onEntry {
-        furhat.ask("Where do you want to go?")
+        furhat.ask("Where do you want to go? I can recommend Stockholm City Hall, Stockholm University, or maybe the Vasa Museeum.")
     }
 
     onResponse<TravelRequest> {
@@ -42,7 +42,7 @@ val getlocation : State = state(Interaction) {
             destination = dest_match.groups["des"]?.value
         }
         else {
-            furhat.ask("I did not understand that. Can you say it again?")
+            furhat.ask("Sorry, can you repeat that?")
         }
         val dep_match = departure_regex.find(request_string)
         if (dep_match != null) {
@@ -67,7 +67,7 @@ val getlocation : State = state(Interaction) {
             goto(tellprice)
         }
         else if(response.jsonObject.getJSONArray("routes").length() == 0) {
-            furhat.ask("I can't find a way from $departure to $destination. Could you be more specific?")
+            furhat.ask("I can't find a way from $departure to $destination. Maybe try a more well known landmark instead?")
         }
         var route_info = response.jsonObject.getJSONArray("routes")
                 .getJSONObject(0)
@@ -157,7 +157,7 @@ val bargain : State = state(Interaction) {
 
 val last_bargain : State = state(Interaction) {
     onEntry {
-        furhat.ask("What is the lowest you are willing to pay?")
+        furhat.ask("Well, what price are you willing to pay? I might be able to go just a tiny bit lower.")
     }
     onResponse<Price> {
         var customer_bid = it.intent.customer_bid.toString().toInt()
@@ -166,7 +166,7 @@ val last_bargain : State = state(Interaction) {
         if (customer_bid >= accepting_price) {
             furhat.ask("$customer_bid. Is that ok?")
         } else {
-            if (Random.nextFloat() <= 0.5) {
+            if (Random.nextFloat() <= 0.7) {
                 furhat.say("$customer_bid? No. ")
                 goto(bargain)
             } else {

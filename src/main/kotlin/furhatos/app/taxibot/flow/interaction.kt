@@ -15,6 +15,9 @@ var distance: Int? = null
 var duration: Int? = null
 var cost: Int=0
 var accepting_price: Int=0
+var accepted_bid : Int=0
+var bargain_counter : Int=0
+
 var departure: String?= null
 var destination: String?= null
 
@@ -137,7 +140,9 @@ val bargain : State = state(Interaction) {
         furhat.ask("How about $cost kronor?")
     }
     onReentry {
-        furhat.ask("How about $cost kronor?")
+        random(
+        {furhat.ask("How about $cost kronor?")},
+        {furhat.ask("Can we agree on $cost kronor?")})
     }
 
     onResponse<Yes> {
@@ -159,19 +164,26 @@ val last_bargain : State = state(Interaction) {
     onEntry {
         furhat.ask("Well, what price are you willing to pay? I might be able to go just a tiny bit lower.")
     }
+    onReentry {
+        random(
+        {furhat.ask("To travel $distance kilometers you have to pay a bit. What is your final offer?")},
+        {furhat.ask("I think you can pay a bit more! What can you afford at most?")})
+    }
     onResponse<Price> {
         var customer_bid = it.intent.customer_bid.toString().toInt()
         println(customer_bid)
-        println(accepting_price)
+
         if (customer_bid >= accepting_price) {
+            accepted_bid=customer_bid
+            println(accepted_bid)
             furhat.ask("$customer_bid. Is that ok?")
+
         } else {
-            if (Random.nextFloat() <= 0.7) {
-                furhat.say("$customer_bid? No. ")
-                goto(bargain)
-            } else {
-                furhat.say("$customer_bid? Sorry, I can't accept that. Maybe we can go somewhere else.")
-                goto(getlocation)
+            if (accepted_bid>0){
+                furhat.ask("$customer_bid? No. But $accepted_bid was OK. shall we close the deal on that? ")
+                } else {
+                    cost= (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
+                    furhat.ask("$customer_bid? No. How about $cost. Shall we close the deal on that?")
             }
         }
     }
@@ -179,6 +191,11 @@ val last_bargain : State = state(Interaction) {
         furhat.say("Sure. Let's go.")
     }
     onResponse<No>{
+        if (bargain_counter <= 3) {
+            bargain_counter = bargain_counter + 1
             reentry()
+        } else {
+            furhat.say("Sorry, I am tired of haggling. Good bye!")
+        }
     }
 }

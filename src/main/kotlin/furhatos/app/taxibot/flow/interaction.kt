@@ -207,7 +207,8 @@ val last_bargain : State = state(Interaction) {
 
         }
         else{
-            furhat.say("Sorry, I am tired of haggling. Good bye!")
+            furhat.say("Sorry, I am tired of haggling. But hear a joke before you leave!")
+            goto(funny_joke)     
         }
     }
     onResponse<Yes> {
@@ -226,7 +227,24 @@ val last_bargain : State = state(Interaction) {
             bargain_counter = bargain_counter + 1
             reentry()
         } else {
-            furhat.say("Sorry, I am tired of haggling. Good bye!")
+            furhat.say("Sorry, I am tired of haggling. But hear a joke before you leave!!")
+            goto(funny_joke)
         }
+    }
+}
+
+val funny_joke : State = state(Interaction) {
+
+    onEntry {
+        furhat.ask("Do you know what you call a pirate droid?")
+    }
+
+    onResponse<Yes> {
+        furhat.say("Argh2-D2!:p")
+    }
+
+    onResponse<No>{
+        furhat.say("Argh2-D2!:p")
+        reentry()
     }
 }

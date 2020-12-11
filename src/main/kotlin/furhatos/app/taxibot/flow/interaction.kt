@@ -178,28 +178,36 @@ val last_bargain : State = state(Interaction) {
     onResponse<Price> {
         if (bargain_counter <= 3) {
             bargain_counter = bargain_counter + 1
-            var customer_bid = it.intent.customer_bid.toString().toInt()
+            var customer_bid = it.intent.customer_bid.toString().toIntOrNull()
+            println(customer_bid.toString())
             println(customer_bid)
+            if (customer_bid == null) {
+                furhat.ask("Sorry, I did not understand that. How much are you willing to pay?")
+            }
+            else {
+                println(customer_bid)
 
-            if (customer_bid >= accepting_price) {
-                accepted_bid = customer_bid
-                println(accepted_bid)
-                furhat.ask("$customer_bid. Is that ok?")
+                if (customer_bid >= accepting_price) {
+                    accepted_bid = customer_bid
+                    println(accepted_bid)
+                    furhat.ask("$customer_bid. Is that ok?")
 
-            } else {
-                if (accepted_bid > 0) {
-                    furhat.ask("$customer_bid? No. But $accepted_bid was OK. shall we close the deal on that? ")
                 } else {
-                    cost = (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
-                    cost = maxOf(cost, accepting_price)
-                    furhat.ask("$customer_bid? No. How about $cost. Shall we close the deal on that?")
+                    if (accepted_bid > 0) {
+                        furhat.ask("$customer_bid? No. But $accepted_bid was OK. shall we close the deal on that? ")
+                    } else {
+                        cost = (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
+                        cost = maxOf(cost, accepting_price)
+                        furhat.ask("$customer_bid? No. How about $cost. Shall we close the deal on that?")
+                    }
                 }
             }
+
         }
         else{
             furhat.say("Sorry, I am tired of haggling. Good bye!")
         }
-        }
+    }
     onResponse<Yes> {
         furhat.say("Sure. Let's go.")
     }

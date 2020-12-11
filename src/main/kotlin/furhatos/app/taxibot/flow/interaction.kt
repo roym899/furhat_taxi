@@ -18,6 +18,7 @@ var accepting_price: Int=0
 var accepted_bid : Int=0
 var bargain_counter : Int=0
 var bargain_2_counter : Int=0
+var current_bid : Int=0
 
 var departure: String?= null
 var destination: String?= null
@@ -90,6 +91,7 @@ val getlocation : State = state(Interaction) {
         accepted_bid=0
         bargain_counter=0
         bargain_2_counter=0
+        current_bid = 0
 
         println(start_address_text)
         println(end_address_text)
@@ -154,7 +156,6 @@ val bargain : State = state(Interaction) {
     }
 
     onResponse<No>{
-
         if (Random.nextFloat() <= 0.5 && bargain_2_counter<1) {
             bargain_2_counter= bargain_2_counter+1
             cost= (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
@@ -177,27 +178,28 @@ val last_bargain : State = state(Interaction) {
     }
     onResponse<Price> {
         if (bargain_counter <= 3) {
-            bargain_counter = bargain_counter + 1
             var customer_bid = it.intent.customer_bid.toString().toIntOrNull()
-            println(customer_bid.toString())
-            println(customer_bid)
             if (customer_bid == null) {
+                current_bid = 0
                 furhat.ask("Sorry, I did not understand that. How much are you willing to pay?")
             }
             else {
+                bargain_counter = bargain_counter + 1
                 println(customer_bid)
 
                 if (customer_bid >= accepting_price) {
                     accepted_bid = customer_bid
+                    current_bid = customer_bid
                     println(accepted_bid)
                     furhat.ask("$customer_bid. Is that ok?")
-
                 } else {
                     if (accepted_bid > 0) {
+                        current_bid = accepted_bid
                         furhat.ask("$customer_bid? No. But $accepted_bid was OK. shall we close the deal on that? ")
                     } else {
                         cost = (cost - 0.1 * Random.nextFloat() * cost).roundToInt() - 1
                         cost = maxOf(cost, accepting_price)
+                        current_bid = cost
                         furhat.ask("$customer_bid? No. How about $cost. Shall we close the deal on that?")
                     }
                 }
@@ -209,10 +211,18 @@ val last_bargain : State = state(Interaction) {
         }
     }
     onResponse<Yes> {
-        furhat.say("Sure. Let's go.")
+        if (current_bid != 0) {
+            furhat.say("Sure. Let's go.")
+        }
+        else {
+            furhat.ask("Sorry, I did not understand that. How much are you willing to pay?")
+        }
     }
     onResponse<No>{
-        if (bargain_counter <= 3) {
+        if (current_bid == 0) {
+            furhat.ask("Sorry, I did not understand that. How much are you willing to pay?")
+        }
+        else if (bargain_counter <= 3) {
             bargain_counter = bargain_counter + 1
             reentry()
         } else {
